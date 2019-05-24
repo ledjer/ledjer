@@ -36,7 +36,29 @@ ledjer will de-complect and make a DLT that is composable and simple.
 - Non-repudiation (Digital signatures)
 - Identity - Node identity, transaction signing identity, administrator identity, organisation identity
 - Immutability - either via a blockchain recording hashes or ...?
-- Integrity Verification (Notaries? Observers?) 
+- Integrity Verification (Notaries? Observers?)
+
+## Temporal Scalability
+
+One of the key problems with blockchains is that they contain all records, forever. So its always growing.
+
+https://www.blockchain.com/charts/blocks-size?
+
+Most accounting systems recognised that you can close of periods (end of Month, End of year). This is a scalabilty mechanism.
+
+Opening balances and closing balances. These can be transactions themselves that create a state (have no input state).
+
+
+
+## Protocol vs Implementation
+
+The most important element if a technology it to become ubiquitous is that it is based on a protocol, not on an implementation. See HTTP.
+
+Can a ledger protocol be developed that allows multiple implementations and configurable composition and ubiquity?
+
+Can a ledger protocol conform to the architectural style of REST? Is it possible or desireable? The underlying style of REST is what contributes significantly to the scalability and adoption of HTTP and the web.
+
+
 
 
 
