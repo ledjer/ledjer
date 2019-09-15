@@ -17,13 +17,13 @@ public class JourneyTest_Nomination {
 
     @Test
     public void can_nominate_a_freighter_for_kryptonite() {
-        TxResponse txResponse_1 = hydraNominations.propose("NOM_HYDRA_TAURUS_001", HYDRA, TAURUS, CARGO_CULT);
+        TxResponse txResponse_1 = hydraNominations.propose(HYDRA, TAURUS, CARGO_CULT);
         assertThat(txResponse_1.status, is("Completed"));
 
-        TxResponse txResponse_2 = taurusNominations.find("NOM_HYDRA_TAURUS_001").accept();
+        TxResponse txResponse_2 = taurusNominations.mostRecentNomination().accept();
         assertThat(txResponse_2.status, is("Completed"));
 
-        NominationState nomination = hydraNominations.find("NOM_HYDRA_TAURUS_001").currentState();
+        NominationState nomination = hydraNominations.at(txResponse_1.contractAddress).currentState();
         assertThat(nomination.status, is("Accepted"));
     }
 

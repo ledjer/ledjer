@@ -1,6 +1,8 @@
 package galaktica.trading.kryptonite;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GalactikaNode {
@@ -10,6 +12,7 @@ public class GalactikaNode {
     public final String name;
     public final NetworkComms networkComms;
     private final Map<String, Contract> contractIndex = new HashMap<String, Contract>();
+    private final List<Contract> contracts = new ArrayList<Contract>();
 
 
 
@@ -21,6 +24,7 @@ public class GalactikaNode {
 
     public void registerContract(Contract contract) {
         contractIndex.put(contract.getId(), contract);
+        contracts.add(contract);
     }
 
     public <T extends Contract> T findContract(String id) {
@@ -28,4 +32,10 @@ public class GalactikaNode {
     }
 
 
+    public <T extends Contract> T mostRecentContract() {
+        if (contractIndex.size() == 0) {
+            throw new IllegalStateException("There are no contracts!");
+        }
+        return (T)contracts.get(contractIndex.size()-1);
+    }
 }
