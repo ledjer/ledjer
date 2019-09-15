@@ -1,15 +1,31 @@
 package galaktica.trading.kryptonite;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GalactikaNode {
-    public void submitNomination(Nomination nomination) {
 
+
+    public final KryptoniteTrading kryptonite;
+    public final String name;
+    public final NetworkComms networkComms;
+    private final Map<String, Contract> contractIndex = new HashMap<String, Contract>();
+
+
+
+    public GalactikaNode(String name, NetworkComms networkComms) {
+        this.name = name;
+        this.networkComms = networkComms;
+        kryptonite = new KryptoniteTrading(new KryptoniteNominations(this));
     }
 
-    public Nomination findNomination(String nominationId) {
-        return null;
+    public void registerContract(Contract contract) {
+        contractIndex.put(contract.getId(), contract);
     }
 
-    public void acceptNomination(Nomination nomination_001_taurus) {
-
+    public <T extends Contract> T findContract(String id) {
+        return (T)contractIndex.get(id);
     }
+
+
 }
