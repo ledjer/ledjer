@@ -1,8 +1,6 @@
 package galaktica.trading.kryptonite;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Arrays;
 
 import static java.util.UUID.randomUUID;
 
@@ -25,10 +23,17 @@ public class KryptoniteNominations {
         return null;
     }
 
-    public TxResponse propose(Trader nominator, Trader receiver, Freighter freighter) {
-        NominationContract contract = new NominationContract(newContractAddress(), node.networkComms);
-        node.registerContract(contract);
-        return contract.propose(nominator, receiver, freighter, "Proposed");
+    public TxReference propose(Trader receiver, Freighter freighter) {
+        TxReference txReference = new TxReference(randomUUID().toString());
+        TxData txData = new TxData(
+                txReference,
+                NominationContract.class,
+                Arrays.<LedjerNode>asList(node, receiver.node),
+                "init",
+                Arrays.<Object>asList(freighter));
+
+        node.submitTx(txData);
+        return txReference;
     }
 
     private String newContractAddress() {

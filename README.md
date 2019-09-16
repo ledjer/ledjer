@@ -30,7 +30,7 @@ ledjer will de-complect and make a DLT that is composable and simple.
 
 ## Layers
 
-- Foundation - P2P commms, sending transaction data, storing tx data, confidentiality, peer discovery, peer authentication
+- Foundation - P2P commms, sending transaction data, storing txData data, confidentiality, peer discovery, peer authentication
 - Resilience and Scalability - horizontal scalability, redundancy
 - Transaction Protocol - effectively 2-phase commit, a la corda [flows](https://docs.corda.net/key-concepts-flows.html)
 - Non-repudiation (Digital signatures)
