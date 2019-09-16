@@ -40,10 +40,29 @@ public class GalactikaNode implements LedjerNode {
     public void submitTx(TxData txData) {
         store_registeredTx(txData);
 
-        networkComms.requestSignatures(txData);
+        System.out.println("Requesting signatures");
+        networkComms.requestSignatures(this, txData);
 
         store_signaturesRequestedTx(txData.txReference);
 
+    }
+
+    public void requestSignature(LedjerNode coordinator, TxData txData) {
+        TxSignature txSignature = signTxData(txData);
+        networkComms.sendSignature(this, coordinator, txSignature);
+    }
+
+    public void receiveSignature(TxSignature signature) {
+        System.out.println(Thread.currentThread().getId() + " - " + name + " Received signature " + signature.signature);
+        this.txEventStore.add(new TxEvent("SignatureReceived", signature.txReference, signature));
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    private TxSignature signTxData(TxData txData) {
+        return new TxSignature(txData.txReference, UUID.randomUUID().toString().substring(0, 6));
     }
 
     private void store_registeredTx(TxData txData) {
@@ -54,13 +73,6 @@ public class GalactikaNode implements LedjerNode {
 
     private void store_signaturesRequestedTx(TxReference txReference) {
         this.txEventStore.add(new TxEvent("RequestedSignatures", txReference));
-    }
-
-
-
-
-    private void processTx(TxData txData) {
-
     }
 
     public Tx getTx(TxReference txReference) {

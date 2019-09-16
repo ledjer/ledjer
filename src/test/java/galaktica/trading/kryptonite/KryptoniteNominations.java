@@ -30,7 +30,7 @@ public class KryptoniteNominations {
                 NominationContract.class,
                 Arrays.<LedjerNode>asList(node, receiver.node),
                 "init",
-                Arrays.<Object>asList(freighter));
+                Arrays.<Object>asList(freighter.id));
 
         node.submitTx(txData);
         return txReference;

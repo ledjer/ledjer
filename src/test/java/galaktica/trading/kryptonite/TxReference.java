@@ -10,4 +10,8 @@ public class TxReference {
     public boolean isComplete() {
         return false;
     }
+
+    public String toString() {
+        return uuid;
+    }
 }
