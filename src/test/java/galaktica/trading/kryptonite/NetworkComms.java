@@ -68,5 +68,24 @@ public class NetworkComms {
     }
 
 
+    public void sendTxToParticipants(final LedjerNode coordinator, final TxData txData) {
+        for (final LedjerNode destination : txData.participants) {
+            if (!coordinator.getName().equals(destination.getName())) {
+                Thread t = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            Thread.sleep(50);
 
+                            log.debug("[{}] Sending Tx [{}] to [{}]", coordinator.getName(), txData, destination.getName());
+
+                            destination.receiveTxData(txData);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                t.start();
+            }
+        }
+    }
 }

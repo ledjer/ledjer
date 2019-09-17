@@ -11,4 +11,5 @@ public interface  LedjerNode  {
 
     String getName();
 
+    void receiveTxData(TxData txData);
 }

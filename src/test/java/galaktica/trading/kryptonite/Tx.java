@@ -1,10 +1,14 @@
 package galaktica.trading.kryptonite;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Tx {
 
+    private static final Logger log = LoggerFactory.getLogger(Tx.class);
     public final TxReference txReference;
     public final TxData txData;
     public final List<TxSignature> txSignatures;
@@ -25,8 +29,10 @@ public class Tx {
         List<TxSignature> txSignatures = new ArrayList<TxSignature>();
 
         for (TxEvent txEvent : txEventStore) { // @todo filter list by txReference
+            log.debug("Reading event: " + txEvent.type);
+
             if (txEvent.txReference.equals(txReference)) {
-                status = txEvent.status;
+                status = txEvent.type;
                 if (txEvent.payload != null) {
                     if (txEvent.payload.getClass().isAssignableFrom(TxData.class)) {
                         txData = (TxData) txEvent.payload;
@@ -35,6 +41,10 @@ public class Tx {
                     }
                 }
             }
+        }
+
+        if (txData == null) {
+            throw new RuntimeException("No tx data found in event store for tx [" + txReference + "]");
         }
 
         if (txSignatures.size() == txData.participants.size()) {

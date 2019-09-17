@@ -47,7 +47,7 @@ public class JourneyTest_Nomination {
 
         logTx(hydraNode, tx_hydra);
 
-        Tx tx_taurus = waitForTxToComplete(hydraNode, tx1_reference, 1000);
+        Tx tx_taurus = waitForTxToComplete(taurusNode, tx1_reference, 1000);
 
         assertThat(tx_taurus.status, is("Completed"));
         assertThat(tx_taurus.txData, is(notNullValue()));
