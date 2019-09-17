@@ -54,6 +54,8 @@ public class JourneyTest_Nomination {
 
         logTx(taurusNode, tx_hydra);
 
+        taurusNominations.at(tx_taurus.txData.contractAddress);
+
 //        TxResponse txResponse_2 = taurusNominations.mostRecentNomination().accept();
 //        assertThat(txResponse_2.status, is("Completed"));
 //

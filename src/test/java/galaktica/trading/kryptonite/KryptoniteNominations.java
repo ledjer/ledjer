@@ -32,6 +32,7 @@ public class KryptoniteNominations {
         TxReference txReference = new TxReference(randomUUID().toString());
         TxData txData = new TxData(
                 txReference,
+                0,
                 NominationContract.class,
                 Arrays.<LedjerNode>asList(node, receiver.node),
                 "init",
