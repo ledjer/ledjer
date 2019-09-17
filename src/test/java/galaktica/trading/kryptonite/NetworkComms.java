@@ -27,9 +27,9 @@ public class NetworkComms {
             public void run() {
                 try {
                     Thread.sleep(50);
-                    if (log.isDebugEnabled()) {
-                        log.debug(source.getName() + " Sending Signature [" + signature.signature + "] To " + destination.getName());
-                    }
+
+                    log.debug("[{}] Sending Signature [{}] to [{}]", source.getName(), signature.signature , destination.getName());
+
                     destination.receiveSignature(signature);
                 } catch( InterruptedException e) {
                     throw new RuntimeException(e);
@@ -50,9 +50,9 @@ public class NetworkComms {
             public void run() {
                 try {
                     Thread.sleep(50);
-                    if (log.isDebugEnabled()) {
-                        log.debug(coordinator.getName() + " Requesting signature from " + destination.getName());
-                    }
+
+                    log.debug("[{}] Requesting signature from [{}]", coordinator.getName() , destination.getName());
+
                     destination.requestSignature(coordinator, txData);
                 } catch( InterruptedException e) {
                     throw new RuntimeException(e);

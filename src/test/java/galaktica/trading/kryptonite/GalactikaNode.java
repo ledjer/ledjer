@@ -45,9 +45,8 @@ public class GalactikaNode implements LedjerNode {
     public void submitTx(TxData txData) {
         store_registeredTx(txData);
 
-        if(log.isDebugEnabled()) {
-            log.debug("Requesting signatures");
-        }
+        log.debug("[{}] Requesting signatures", name);
+
         networkComms.requestSignatures(this, txData);
 
         store_signaturesRequestedTx(txData.txReference);
@@ -60,9 +59,8 @@ public class GalactikaNode implements LedjerNode {
     }
 
     public void receiveSignature(TxSignature signature) {
-        if (log.isDebugEnabled()) {
-            log.debug("{} Received signature [{}]", name, signature.signature);
-        }
+        log.debug("[{}] Received signature [{}]", name, signature.signature);
+
         this.txEventStore.add(new TxEvent("SignatureReceived", signature.txReference, signature));
     }
 
