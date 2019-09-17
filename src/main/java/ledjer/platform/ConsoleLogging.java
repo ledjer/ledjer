@@ -69,4 +69,6 @@ public class ConsoleLogging {
         layoutEncoder.start();
         return layoutEncoder;
     }
+
+
 }

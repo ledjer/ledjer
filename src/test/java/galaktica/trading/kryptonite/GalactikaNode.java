@@ -45,7 +45,7 @@ public class GalactikaNode implements LedjerNode {
     public void submitTx(TxData txData) {
         store_registeredTx(txData);
 
-        log.debug("[{}] Requesting signatures", name);
+        log.debug("[{}] Requesting signatures for tx [{}]", name, txData.txReference);
 
         networkComms.requestSignatures(this, txData);
 
@@ -53,9 +53,9 @@ public class GalactikaNode implements LedjerNode {
 
     }
 
-    public void requestSignature(LedjerNode coordinator, TxData txData) {
+    public void requestSignature(TxData txData) {
         TxSignature txSignature = signTxData(txData);
-        networkComms.sendSignature(this, coordinator, txSignature);
+        networkComms.sendSignature(this, txSignature, txData.participants);
     }
 
     public void receiveSignature(TxSignature signature) {
@@ -64,9 +64,15 @@ public class GalactikaNode implements LedjerNode {
         this.txEventStore.add(new TxEvent("SignatureReceived", signature.txReference, signature));
     }
 
+
+
+
+
     public String getName() {
         return name;
     }
+
+
 
     private TxSignature signTxData(TxData txData) {
         return new TxSignature(txData.txReference, UUID.randomUUID().toString().substring(0, 6));

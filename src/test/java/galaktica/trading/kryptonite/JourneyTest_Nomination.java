@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static ch.qos.logback.classic.Level.DEBUG;
 import static galaktica.trading.kryptonite.Freighters.CARGO_CULT;
@@ -17,6 +19,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class JourneyTest_Nomination {
+
+    private static final Logger log = LoggerFactory.getLogger(JourneyTest_Nomination.class);
 
     private GalactikaNode hydraNode = HYDRA.node;
     private GalactikaNode taurusNode = TAURUS.node;
@@ -31,6 +35,7 @@ public class JourneyTest_Nomination {
     @Test
     public void can_nominate_a_freighter_for_kryptonite() throws JsonProcessingException {
 
+        log.info("Nominating a freighter");
         TxReference tx1_reference = hydraNominations.propose(TAURUS, CARGO_CULT);
 
         assertThat(hydraNode.getTx(tx1_reference).status, is("RequestedSignatures"));
@@ -43,7 +48,7 @@ public class JourneyTest_Nomination {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tx.toExternalForm()));
+        log.info("Transaction Json:\n{}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tx.toExternalForm()));
 
 
 //        TxResponse txResponse_2 = taurusNominations.mostRecentNomination().accept();
