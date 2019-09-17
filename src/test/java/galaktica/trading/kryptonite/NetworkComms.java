@@ -1,7 +1,11 @@
 package galaktica.trading.kryptonite;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class NetworkComms {
 
+    private static final Logger log = LoggerFactory.getLogger(NetworkComms.class);
 
     public NetworkComms() {
 
@@ -23,7 +27,9 @@ public class NetworkComms {
             public void run() {
                 try {
                     Thread.sleep(50);
-                    System.out.println(Thread.currentThread().getId() + " - " + source.getName() + " Sending Signature [" + signature.signature + "] To " + destination.getName());
+                    if (log.isDebugEnabled()) {
+                        log.debug(source.getName() + " Sending Signature [" + signature.signature + "] To " + destination.getName());
+                    }
                     destination.receiveSignature(signature);
                 } catch( InterruptedException e) {
                     throw new RuntimeException(e);
@@ -44,7 +50,9 @@ public class NetworkComms {
             public void run() {
                 try {
                     Thread.sleep(50);
-                    System.out.println(Thread.currentThread().getId() + " - " + coordinator.getName() + " Requesting signature from " + destination.getName());
+                    if (log.isDebugEnabled()) {
+                        log.debug(coordinator.getName() + " Requesting signature from " + destination.getName());
+                    }
                     destination.requestSignature(coordinator, txData);
                 } catch( InterruptedException e) {
                     throw new RuntimeException(e);

@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static ch.qos.logback.classic.Level.DEBUG;
 import static galaktica.trading.kryptonite.Freighters.CARGO_CULT;
 import static galaktica.trading.kryptonite.Traders.HYDRA;
 import static galaktica.trading.kryptonite.Traders.TAURUS;
+import static ledjer.platform.ConsoleLogging.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -19,6 +22,11 @@ public class JourneyTest_Nomination {
     private GalactikaNode taurusNode = TAURUS.node;
     private KryptoniteNominations hydraNominations = hydraNode.kryptonite.nominations;
     private KryptoniteNominations taurusNominations = taurusNode.kryptonite.nominations;
+
+    @BeforeClass
+    public static void initialiseLogging() {
+        initialiseConsoleLogging(DEBUG, SIMPLE_CONSOLE_FORMAT);
+    }
 
     @Test
     public void can_nominate_a_freighter_for_kryptonite() throws JsonProcessingException {

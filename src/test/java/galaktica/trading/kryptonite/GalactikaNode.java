@@ -1,9 +1,14 @@
 package galaktica.trading.kryptonite;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GalactikaNode implements LedjerNode {
 
+    private static final Logger log = LoggerFactory.getLogger(GalactikaNode.class);
 
     public final KryptoniteTrading kryptonite;
     public final String name;
@@ -11,7 +16,7 @@ public class GalactikaNode implements LedjerNode {
     private final Map<String, Contract> contractIndex = new HashMap<String, Contract>();
     private final List<Contract> contracts = new ArrayList<Contract>();
     private HashMap<TxReference, TxData> txs = new HashMap<TxReference, TxData>();
-    private final List<TxEvent> txEventStore = new ArrayList<TxEvent>();
+    private final List<TxEvent> txEventStore = new CopyOnWriteArrayList<TxEvent>();
 
 
     public GalactikaNode(String name, NetworkComms networkComms) {
@@ -40,7 +45,9 @@ public class GalactikaNode implements LedjerNode {
     public void submitTx(TxData txData) {
         store_registeredTx(txData);
 
-        System.out.println("Requesting signatures");
+        if(log.isDebugEnabled()) {
+            log.debug("Requesting signatures");
+        }
         networkComms.requestSignatures(this, txData);
 
         store_signaturesRequestedTx(txData.txReference);
@@ -53,7 +60,9 @@ public class GalactikaNode implements LedjerNode {
     }
 
     public void receiveSignature(TxSignature signature) {
-        System.out.println(Thread.currentThread().getId() + " - " + name + " Received signature " + signature.signature);
+        if (log.isDebugEnabled()) {
+            log.debug("{} Received signature [{}]", name, signature.signature);
+        }
         this.txEventStore.add(new TxEvent("SignatureReceived", signature.txReference, signature));
     }
 
