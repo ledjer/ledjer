@@ -40,22 +40,32 @@ public class JourneyTest_Nomination {
 
         assertThat(hydraNode.getTx(tx1_reference).status, is("RequestedSignatures"));
 
-        Tx tx = waitForTxToComplete(hydraNode, tx1_reference, 1000);
+        Tx tx_hydra = waitForTxToComplete(hydraNode, tx1_reference, 1000);
 
-        assertThat(tx.status, is("Completed"));
-        assertThat(tx.txData, is(notNullValue()));
+        assertThat(tx_hydra.status, is("Completed"));
+        assertThat(tx_hydra.txData.txReference, is(tx1_reference));
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        log.info("Transaction Json:\n{}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tx.toExternalForm()));
+        logTx(hydraNode, tx_hydra);
 
+        Tx tx_taurus = waitForTxToComplete(hydraNode, tx1_reference, 1000);
+
+        assertThat(tx_taurus.status, is("Completed"));
+        assertThat(tx_taurus.txData, is(notNullValue()));
+
+        logTx(taurusNode, tx_hydra);
 
 //        TxResponse txResponse_2 = taurusNominations.mostRecentNomination().accept();
 //        assertThat(txResponse_2.status, is("Completed"));
 //
 //        NominationState nomination = hydraNominations.at(tx1_reference.contractAddress).currentState();
 //        assertThat(nomination.status, is("Accepted"));
+    }
+
+    private void logTx(LedjerNode ledjerNode, Tx tx) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        log.info("[{}] Transaction Json:\n{}", ledjerNode.getName(), mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tx.toExternalForm()));
     }
 
     // Be beter to have a callback
