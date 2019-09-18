@@ -66,10 +66,6 @@ public class GalactikaNode implements LedjerNode {
         this.txEventStore.add(new TxEvent("SignatureReceived", signature.txReference, signature));
     }
 
-
-
-
-
     public String getName() {
         return name;
     }
@@ -85,9 +81,7 @@ public class GalactikaNode implements LedjerNode {
     }
 
     private void store_registeredTx(TxData txData) {
-
         this.txEventStore.add(new TxEvent("RegisteredTx", txData.txReference, txData));
-
     }
 
     private void store_signaturesRequestedTx(TxReference txReference) {
@@ -95,6 +89,7 @@ public class GalactikaNode implements LedjerNode {
     }
 
     public Tx getTx(TxReference txReference) {
+        log.debug("[{}] Load Tx [{}]", name, txReference);
         return Tx.readEvents(txReference, txEventStore);
     }
 
