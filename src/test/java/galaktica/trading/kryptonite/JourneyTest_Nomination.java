@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static ch.qos.logback.classic.Level.DEBUG;
-import static ch.qos.logback.classic.Level.TRACE;
 import static galaktica.trading.kryptonite.Freighters.CARGO_CULT;
 import static galaktica.trading.kryptonite.Traders.HYDRA;
 import static galaktica.trading.kryptonite.Traders.TAURUS;
@@ -34,52 +33,62 @@ public class JourneyTest_Nomination {
     }
 
     @Test
-    public void can_nominate_a_freighter_for_kryptonite() throws JsonProcessingException {
+    public void can_complete_a_simple_transaction() {
 
-        log.info("Nominating a freighter");
+        log.info("Hydra Nominates a freighter [cargo-cult] to Taurus");
         TxReference tx1_reference = hydraNominations.propose(TAURUS, CARGO_CULT);
-
         assertThat(hydraNode.getTx(tx1_reference).status, is("TransactionSent"));
 
-        Tx tx_hydra = waitForTxToComplete(hydraNode, tx1_reference, 1000);
-
+        Tx tx_hydra = waitForTx(hydraNode, tx1_reference, 1000);
         assertThat(tx_hydra.status, is("Completed"));
         assertThat(tx_hydra.txData.txReference, is(tx1_reference));
 
-        logTx(hydraNode, tx_hydra);
-
-        Tx tx_taurus = waitForTxToComplete(taurusNode, tx1_reference, 1000);
-
+        Tx tx_taurus = waitForTx(taurusNode, tx1_reference, 1000);
         assertThat(tx_taurus.status, is("Completed"));
         assertThat(tx_taurus.txData, is(notNullValue()));
+    }
 
-        logTx(taurusNode, tx_taurus);
+    @Test
+    public void can_nominate_a_freighter_for_kryptonite() throws JsonProcessingException {
 
+        log.info("Hydra Nominates a freighter [cargo-cult] to Taurus");
+        TxReference tx1_reference = hydraNominations.propose(TAURUS, CARGO_CULT);
+        waitForTx(hydraNode, tx1_reference, 1000);
+
+        log.info("Taurus accepts the nomination");
+        Tx tx_taurus = waitForTx(taurusNode, tx1_reference, 1000);
         TxReference tx2_reference = taurusNominations.accept(tx_taurus.txData.contractAddress);
 
-        Tx tx_taurus_accept = waitForTxToComplete(taurusNode, tx2_reference, 1000);
-        logTx(taurusNode, tx_taurus_accept);
+        NominationContract taurusNominarion = waitForNomination(tx2_reference,
+                taurusNode,
+                taurusNominations);
+        assertThat(taurusNominarion.getStatus(), is("Accepted"));
 
-        NominationContract taurusContract = taurusNominations.at(tx_taurus_accept.txData.contractAddress);
-        assertThat(taurusContract.getStatus(), is("Accepted"));
-
-        Tx tx_hydra_accept = waitForTxToComplete(hydraNode, tx2_reference, 1000);
-        logTx(hydraNode, tx_hydra_accept);
-
-        NominationContract hydraContract = hydraNominations.at(tx_hydra_accept.txData.contractAddress);
-        assertThat(hydraContract.getStatus(), is("Accepted"));
+        NominationContract hydraNomination = waitForNomination(tx2_reference,
+                hydraNode,
+                hydraNominations);
+        assertThat(hydraNomination.getStatus(), is("Accepted"));
 
     }
 
-    private void logTx(LedjerNode ledjerNode, Tx tx) throws JsonProcessingException {
+    private NominationContract waitForNomination(TxReference tx2_reference, GalactikaNode hydraNode, KryptoniteNominations hydraNominations) {
+        Tx tx_hydra_accept = waitForTx(hydraNode, tx2_reference, 1000);
+        return hydraNominations.at(tx_hydra_accept.txData.contractAddress);
+    }
+
+    private void logTx(LedjerNode ledjerNode, Tx tx) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        log.info("[{}] Transaction Json:\n{}", ledjerNode.getName(), mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tx.toExternalForm()));
+        try {
+            log.info("[{}] Transaction Json:\n{}", ledjerNode.getName(), mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tx.toExternalForm()));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Be beter to have a callback
-    private Tx waitForTxToComplete(GalactikaNode node, TxReference txReference, long timeout) {
+    private Tx waitForTx(GalactikaNode node, TxReference txReference, long timeout) {
         try {
 
             long startTime = System.currentTimeMillis();
@@ -91,6 +100,7 @@ public class JourneyTest_Nomination {
                 }
                 tx =  node.getTx(txReference);
             }
+            logTx(hydraNode, tx);
             return tx;
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
