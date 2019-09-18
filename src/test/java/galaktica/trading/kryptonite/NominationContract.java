@@ -5,38 +5,35 @@ import java.util.List;
 
 public class NominationContract  implements Contract<NominationState> {
 
+    private String status = "proposed";
     private List<NominationState> states = new ArrayList<NominationState>();
-    public final String id;
-    private NetworkComms networkComms;
+    public final String address;
+    public List<LedjerNode> participants;
 
-    public NominationContract(String id, NetworkComms networkComms) {
-        this.id = id;
-        this.networkComms = networkComms;
+    public NominationContract(String address, List<LedjerNode> participants) {
+        this.address = address;
+
+        this.participants = participants;
     }
 
-
-    public TxReference accept() {
-        NominationState s = currentState();
-        NominationState s1 = new NominationState(id, s.nominator, s.receiver, s.freighter, "Accepted");
-        states.add(s1);
-//        return networkComms.sendStateTo(s.receiver.node, s1);
-        return null;
-    }
-
-    public TxResponse propose(Trader nominator, Trader receiver, Freighter freighter, String state) {
-        states.add(new NominationState(id, nominator, receiver, freighter, state));
-        return networkComms.sendContractTo(receiver.node, this);
-    }
 
     public NominationState currentState() {
         return states.get(states.size()-1);
     }
 
-    public String getId() {
-        return id;
+    public String getAddress() {
+        return address;
     }
 
     public void appendState(NominationState state) {
         states.add(state);
+    }
+
+    public void accept() {
+        status = "Accepted";
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

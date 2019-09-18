@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static java.lang.String.format;
+
 public class GalactikaNode implements LedjerNode {
 
     private static final Logger log = LoggerFactory.getLogger(GalactikaNode.class);
@@ -26,12 +28,15 @@ public class GalactikaNode implements LedjerNode {
     }
 
     public void registerContract(Contract contract) {
-        contractIndex.put(contract.getId(), contract);
+        contractIndex.put(contract.getAddress(), contract);
         contracts.add(contract);
     }
 
-    public <T extends Contract> T findContract(String id) {
-        return (T)contractIndex.get(id);
+    public <T extends Contract> T findContract(String address) {
+        if (!contractIndex.containsKey(address)) {
+            throw new RuntimeException(format("[%s] Could not find a contract with address [%s]", name, address));
+        }
+        return (T)contractIndex.get(address);
     }
 
 
@@ -49,6 +54,7 @@ public class GalactikaNode implements LedjerNode {
 
         store_registeredTx(txData, txSignature);
 
+
         log.debug("[{}] Sending signed txData [{}] to participants (Signature [{}])", name, txData.txReference, txSignature.signature);
 
         networkComms.sendTxToParticipants(this, txData, txSignature);
@@ -56,6 +62,19 @@ public class GalactikaNode implements LedjerNode {
         store_txSent(txData.txReference);
 
 
+    }
+
+    private void process_tx(TxData txData) {
+        if (NominationContract.class.getName().equals(txData.contractClass.getName())) {
+            if ("init".equals(txData.method)) {
+                NominationContract nominationContract = new NominationContract(txData.contractAddress, txData.participants);
+                contractIndex.put(txData.contractAddress, nominationContract);
+                log.debug("[{}] Creating contract [{}] at [{}]", name, nominationContract.getClass().getName(), txData.contractAddress);
+            } else if ("accept".equals(txData.method)) {
+                NominationContract nominationContract = kryptonite.nominations.at(txData.contractAddress);
+                nominationContract.accept();
+            }
+        }
     }
 
     @Override
@@ -93,6 +112,7 @@ public class GalactikaNode implements LedjerNode {
         this.txEventStore.addAll(Arrays.<TxEvent>asList(
                 new TxEvent("RegisteredTx", txData.txReference, txData),
                 new TxEvent("SignatureAdded", coordinatorSignature.txReference, coordinatorSignature)));
+        process_tx(txData);
     }
 
     private void store_signature(TxSignature signature) {

@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 
+import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 
 public class KryptoniteNominations {
@@ -18,13 +20,24 @@ public class KryptoniteNominations {
         this.node = node;
     }
 
-    public NominationContract at(String nominationId) {
-        return node.findContract(nominationId);
+    public NominationContract at(String contractAddress) {
+        return node.findContract(contractAddress);
     }
 
-    public TxResponse accept(String nomination_001_taurus) {
+    public TxReference accept(String contractAddress) {
+        NominationContract contract = at(contractAddress);
+        log.debug("[{}] Accepting Nomination [{}]", node.name, contractAddress);
+        TxReference txReference = new TxReference(randomUUID().toString());
+        TxData txData = new TxData(
+                txReference,
+                contractAddress,
+                NominationContract.class,
+                contract.participants, // need to validate this
+                "accept",
+                emptyList());
 
-        return null;
+        node.submitTx(txData);
+        return txReference;
     }
 
     public TxReference propose(Trader receiver, Freighter freighter) {
@@ -32,7 +45,7 @@ public class KryptoniteNominations {
         TxReference txReference = new TxReference(randomUUID().toString());
         TxData txData = new TxData(
                 txReference,
-                node.nextNonce(),
+                LedjerCrypto.sha256HashOf(node.nextNonce(), NominationContract.class.getName()),
                 NominationContract.class,
                 Arrays.<LedjerNode>asList(node, receiver.node),
                 "init",

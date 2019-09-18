@@ -53,18 +53,22 @@ public class JourneyTest_Nomination {
         assertThat(tx_taurus.status, is("Completed"));
         assertThat(tx_taurus.txData, is(notNullValue()));
 
-        logTx(taurusNode, tx_hydra);
+        logTx(taurusNode, tx_taurus);
 
-        NominationContract nominationContract = taurusNominations.at(tx_taurus.txData.contractAddress);
-//
-//        TxReference tx_taurus_accept = nominationContract.accept();
-//
+        TxReference tx2_reference = taurusNominations.accept(tx_taurus.txData.contractAddress);
 
-//        TxResponse txResponse_2 = taurusNominations.mostRecentNomination().accept();
-//        assertThat(txResponse_2.status, is("Completed"));
-//
-//        NominationState nomination = hydraNominations.at(tx1_reference.contractAddress).currentState();
-//        assertThat(nomination.status, is("Accepted"));
+        Tx tx_taurus_accept = waitForTxToComplete(taurusNode, tx2_reference, 1000);
+        logTx(taurusNode, tx_taurus_accept);
+
+        NominationContract taurusContract = taurusNominations.at(tx_taurus_accept.txData.contractAddress);
+        assertThat(taurusContract.getStatus(), is("Accepted"));
+
+        Tx tx_hydra_accept = waitForTxToComplete(hydraNode, tx2_reference, 1000);
+        logTx(hydraNode, tx_hydra_accept);
+
+        NominationContract hydraContract = hydraNominations.at(tx_hydra_accept.txData.contractAddress);
+        assertThat(hydraContract.getStatus(), is("Accepted"));
+
     }
 
     private void logTx(LedjerNode ledjerNode, Tx tx) throws JsonProcessingException {

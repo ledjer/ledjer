@@ -15,7 +15,7 @@ public class NetworkComms {
 
     public TxResponse sendContractTo(GalactikaNode destinationNode, Contract contract) {
         destinationNode.registerContract(contract);
-        return new TxResponse("Completed", contract.getId());
+        return new TxResponse("Completed", contract.getAddress());
     }
 
     public TxResponse sendStateTo(GalactikaNode node, ContractState state) {
