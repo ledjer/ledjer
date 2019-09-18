@@ -73,6 +73,7 @@ public class GalactikaNode implements LedjerNode {
             } else if ("accept".equals(txData.method)) {
                 NominationContract nominationContract = kryptonite.nominations.at(txData.contractAddress);
                 nominationContract.accept();
+                log.debug("[{}] accepting contract [{}] at [{}]", name, nominationContract.getClass().getName(), txData.contractAddress);
             }
         }
     }
