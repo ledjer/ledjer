@@ -44,23 +44,25 @@ public class NetworkComms {
     }
 
 
-    public void sendTxToParticipants(final LedjerNode coordinator, final TxData txData) {
+
+    public void sendTxToParticipants(final LedjerNode coordinator, final TxData txData, final TxSignature coordinatorSignature) {
         for (final LedjerNode destination : txData.participants) {
-            Thread t = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Thread.sleep(50);
+            if (!coordinator.getName().equals(destination.getName())) {
+                Thread t = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            Thread.sleep(50);
 
-                        log.debug("[{}] Sending Tx [{}] to [{}]", coordinator.getName(), txData, destination.getName());
+                            log.debug("[{}] Sending Tx [{}] to [{}]", coordinator.getName(), txData.txReference, destination.getName());
 
-                        destination.receiveTxData(txData);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                            destination.receiveTxData(txData, coordinatorSignature);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
-                }
-            });
-            t.start();
-
+                });
+                t.start();
+            }
         }
     }
 }

@@ -1,7 +1,5 @@
 package galaktica.trading.kryptonite;
 
-import java.util.List;
-
 public interface  LedjerNode  {
     void submitTx(TxData txData);
 
@@ -11,5 +9,5 @@ public interface  LedjerNode  {
 
     String getName();
 
-    void receiveTxData(TxData txData);
+    void receiveTxData(TxData txData, TxSignature coordinatorSignature);
 }

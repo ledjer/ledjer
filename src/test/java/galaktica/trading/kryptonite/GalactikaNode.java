@@ -44,46 +44,57 @@ public class GalactikaNode implements LedjerNode {
 
     public void submitTx(TxData txData) {
         log.debug("[{}] Transaction [{}] Submitted", name, txData.txReference);
-        store_registeredTx(txData);
 
-        log.debug("[{}] Sending tx [{}] to participants", name, txData.txReference);
-        networkComms.sendTxToParticipants(this, txData);
+        TxSignature txSignature = signTxData(txData);
+
+        store_registeredTx(txData, txSignature);
+
+        log.debug("[{}] Sending signed txData [{}] to participants (Signature [{}])", name, txData.txReference, txSignature.signature);
+
+        networkComms.sendTxToParticipants(this, txData, txSignature);
 
         store_txSent(txData.txReference);
 
 
-
-
-
     }
 
+    @Override
+    public void receiveTxData(TxData txData, TxSignature coordinatorSignature) {
+        store_registeredTx(txData, coordinatorSignature);
+
+
+        TxSignature txSignature = signTxData(txData);
+        networkComms.sendSignature(this, txSignature, txData.participants);
+    }
 
     public void receiveSignature(TxSignature signature) {
         log.debug("[{}] Received signature [{}]", name, signature.signature);
 
-        this.txEventStore.add(new TxEvent("SignatureReceived", signature.txReference, signature));
+        store_signature(signature);
     }
+
 
     public String getName() {
         return name;
     }
 
-    @Override
-    public void receiveTxData(TxData txData) {
-        store_registeredTx(txData);
 
-        TxSignature txSignature = signTxData(txData);
-        networkComms.sendSignature(this, txSignature, txData.participants);
-    }
 
 
     private TxSignature signTxData(TxData txData) {
         return new TxSignature(txData.txReference, UUID.randomUUID().toString().substring(0, 6));
     }
 
-    private void store_registeredTx(TxData txData) {
-        this.txEventStore.add(new TxEvent("RegisteredTx", txData.txReference, txData));
+    private void store_registeredTx(TxData txData, TxSignature coordinatorSignature) {
+        this.txEventStore.addAll(Arrays.<TxEvent>asList(
+                new TxEvent("RegisteredTx", txData.txReference, txData),
+                new TxEvent("SignatureAdded", coordinatorSignature.txReference, coordinatorSignature)));
     }
+
+    private void store_signature(TxSignature signature) {
+        this.txEventStore.add(new TxEvent("SignatureAdded", signature.txReference, signature));
+    }
+
 
     private void store_txSent(TxReference txReference) {
         this.txEventStore.add(new TxEvent("TransactionSent", txReference));
