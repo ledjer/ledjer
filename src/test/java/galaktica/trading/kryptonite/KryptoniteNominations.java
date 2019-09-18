@@ -19,9 +19,11 @@ public class KryptoniteNominations {
 
 
     private final GalactikaNode node;
+    private final WitnessNode witness;
 
-    public KryptoniteNominations(GalactikaNode node) {
+    public KryptoniteNominations(GalactikaNode node, WitnessNode witness) {
         this.node = node;
+        this.witness = witness;
     }
 
     public NominationContract waitForNomination(TxReference txReference) {
@@ -67,6 +69,23 @@ public class KryptoniteNominations {
         return node.findContract(contractAddress);
     }
 
+    public TxReference propose(Trader receiver, Freighter freighter) {
+        log.debug("[{}] Proposing Nomination", node.name);
+        TxReference txReference = new TxReference(randomUUID().toString());
+        TxData txData = new TxData(
+                txReference,
+                LedjerCrypto.sha256HashOf(node.nextNonce(), NominationContract.class.getName()),
+                NominationContract.class,
+                Arrays.<LedjerNode>asList(node, receiver.node),
+                "init",
+                Arrays.<Object>asList(freighter.id),
+                witness);
+
+        node.submitTx(txData);
+        return txReference;
+    }
+
+
     public TxReference accept(String contractAddress) {
         NominationContract contract = at(contractAddress);
         log.debug("[{}] Accepting Nomination [{}]", node.name, contractAddress);
@@ -77,26 +96,13 @@ public class KryptoniteNominations {
                 NominationContract.class,
                 contract.participants, // need to validate this
                 "accept",
-                emptyList());
+                emptyList(),
+                witness);
 
         node.submitTx(txData);
         return txReference;
     }
 
-    public TxReference propose(Trader receiver, Freighter freighter) {
-        log.debug("[{}] Proposing Nomination", node.name);
-        TxReference txReference = new TxReference(randomUUID().toString());
-        TxData txData = new TxData(
-                txReference,
-                LedjerCrypto.sha256HashOf(node.nextNonce(), NominationContract.class.getName()),
-                NominationContract.class,
-                Arrays.<LedjerNode>asList(node, receiver.node),
-                "init",
-                Arrays.<Object>asList(freighter.id));
-
-        node.submitTx(txData);
-        return txReference;
-    }
 
     private String newContractAddress() {
         return randomUUID().toString();

@@ -1,13 +1,11 @@
 package galaktica.trading.kryptonite;
 
-public interface  LedjerNode  {
+public interface  LedjerNode extends AddressableNode {
     void submitTx(TxData txData);
 
 
 
     void receiveSignature(TxSignature signature);
-
-    String getName();
 
     void receiveTxData(TxData txData, TxSignature coordinatorSignature);
 }

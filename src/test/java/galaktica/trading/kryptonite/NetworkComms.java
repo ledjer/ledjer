@@ -24,7 +24,7 @@ public class NetworkComms {
     }
 
 
-    public void sendSignature(final LedjerNode source, final TxSignature signature, List<LedjerNode> participants) {
+    public void sendSignature(final AddressableNode source, final TxSignature signature, List<LedjerNode> participants) {
         for (final LedjerNode destination : participants) {
             if (!source.getName().equals(destination.getName())) {
                 Thread t = new Thread(new Runnable() {
@@ -65,5 +65,22 @@ public class NetworkComms {
                 t.start();
             }
         }
+    }
+
+    public void sendTxToWitness(final LedjerNode coordinator, final Tx tx) {
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(50);
+
+                    log.debug("[{}] Sending Tx [{}] to witness [{}]", coordinator.getName(), tx.txData.txReference, tx.txData.witness.getName());
+
+                    tx.txData.witness.witnessTx(tx.txData, tx.txSignatures);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        t.start();
     }
 }

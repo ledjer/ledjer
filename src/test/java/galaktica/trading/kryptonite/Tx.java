@@ -14,31 +14,43 @@ public class Tx {
     public final List<TxSignature> txSignatures;
 
     public final String status;
+    private final boolean isCoordinator;
 
-    public Tx(TxReference txReference, TxData txData, List<TxSignature> txSignatures, String status) {
+    public Tx(TxReference txReference, TxData txData, List<TxSignature> txSignatures,
+              String status, boolean isCoordinator) {
 
         this.txReference = txReference;
         this.txData = txData;
         this.txSignatures = txSignatures;
         this.status = status;
+        this.isCoordinator = isCoordinator;
     }
 
     public static Tx readEvents(TxReference txReference, List<TxEvent> txEventStore) {
         String status = null;
         TxData txData = null;
         List<TxSignature> txSignatures = new ArrayList<TxSignature>();
+        boolean isCoordinator = false;
+        boolean isWitnessed = false;
 
         for (TxEvent txEvent : txEventStore) { // @todo filter list by txReference
-            log.trace("Event: " + txEvent.type);
+            log.trace("Event: [{}] - payload [{}]", txEvent.type, txEvent.payload);
+
 
             if (txEvent.txReference.equals(txReference)) {
                 status = txEvent.type;
                 if (txEvent.payload != null) {
                     if (txEvent.payload.getClass().isAssignableFrom(TxData.class)) {
                         txData = (TxData) txEvent.payload;
-                    } else if (txEvent.payload.getClass().isAssignableFrom(TxSignature.class)) {
+                    } else if (TxWitnessSignature.class.isAssignableFrom(txEvent.payload.getClass())) {
+                        txSignatures.add((TxWitnessSignature) txEvent.payload);
+                        isWitnessed = true;
+                    } else if (TxSignature.class.isAssignableFrom(txEvent.payload.getClass())) {
                         txSignatures.add((TxSignature) txEvent.payload);
                     }
+                }
+                if (txEvent.type == "TransactionSentToParticipants") {
+                    isCoordinator = true;
                 }
             }
         }
@@ -47,10 +59,10 @@ public class Tx {
             throw new RuntimeException("No tx data found in event store for tx [" + txReference + "]");
         }
 
-        if (txSignatures.size() == txData.participants.size()) {
+        if (txSignatures.size() == txData.participants.size() + 1 && isWitnessed) {
             status = "Completed";
         }
-        return new Tx(txReference, txData, txSignatures, status);
+        return new Tx(txReference, txData, txSignatures, status, isCoordinator);
 
     }
 
@@ -74,5 +86,13 @@ public class Tx {
             stringSignatures.add(txSignature.signature);
         }
         return stringSignatures;
+    }
+
+    public boolean readyToWitness() {
+        return txSignatures.size() == txData.participants.size();
+    }
+
+    public boolean isCoordinator() {
+        return isCoordinator;
     }
 }

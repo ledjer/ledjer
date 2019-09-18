@@ -21,10 +21,10 @@ public class GalactikaNode implements LedjerNode {
     private final List<TxEvent> txEventStore = new CopyOnWriteArrayList<TxEvent>();
 
 
-    public GalactikaNode(String name, NetworkComms networkComms) {
+    public GalactikaNode(String name, NetworkComms networkComms, WitnessNode witness) {
         this.name = name;
         this.networkComms = networkComms;
-        kryptonite = new KryptoniteTrading(new KryptoniteNominations(this));
+        kryptonite = new KryptoniteTrading(new KryptoniteNominations(this, witness));
     }
 
     public void registerContract(Contract contract) {
@@ -36,7 +36,7 @@ public class GalactikaNode implements LedjerNode {
         if (!contractIndex.containsKey(address)) {
             throw new RuntimeException(format("[%s] Could not find a contract with address [%s]", name, address));
         }
-        return (T)contractIndex.get(address);
+        return (T) contractIndex.get(address);
     }
 
 
@@ -44,7 +44,7 @@ public class GalactikaNode implements LedjerNode {
         if (contractIndex.size() == 0) {
             throw new IllegalStateException("There are no contracts!");
         }
-        return (T)contracts.get(contractIndex.size()-1);
+        return (T) contracts.get(contractIndex.size() - 1);
     }
 
     public void submitTx(TxData txData) {
@@ -91,6 +91,21 @@ public class GalactikaNode implements LedjerNode {
         log.debug("[{}] Received signature [{}]", name, signature.signature);
 
         store_signature(signature);
+
+        if (TxWitnessSignature.class.isAssignableFrom(signature.getClass())) {
+            return;
+        }
+
+        Tx tx = getTx(signature.txReference);
+
+        if (tx.isCoordinator() && tx.readyToWitness()) {
+            witnessTx(tx);
+        }
+    }
+
+    private void witnessTx(Tx tx) {
+        networkComms.sendTxToWitness(this, tx);
+        store_txSentToWitness(tx.txReference);
     }
 
 
@@ -99,10 +114,8 @@ public class GalactikaNode implements LedjerNode {
     }
 
 
-
-
     private TxSignature signTxData(TxData txData) {
-        return new TxSignature(txData.txReference, UUID.randomUUID().toString().substring(0, 6));
+        return new TxSignature(txData.txReference, LedjerCrypto.sign(txData));
     }
 
     /**
@@ -122,7 +135,11 @@ public class GalactikaNode implements LedjerNode {
 
 
     private void store_txSent(TxReference txReference) {
-        this.txEventStore.add(new TxEvent("TransactionSent", txReference));
+        this.txEventStore.add(new TxEvent("TransactionSentToParticipants", txReference));
+    }
+
+    private void store_txSentToWitness(TxReference txReference) {
+        this.txEventStore.add(new TxEvent("TransactionSentToWitness", txReference));
     }
 
     public Tx getTx(TxReference txReference) {
@@ -134,7 +151,7 @@ public class GalactikaNode implements LedjerNode {
         long nonce = 0;
         for (TxEvent txEvent : txEventStore) {
             if (txEvent.type == "RegisteredTx") {
-                nonce ++;
+                nonce++;
             }
         }
         return nonce;

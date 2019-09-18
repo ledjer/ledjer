@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -31,5 +32,9 @@ public class LedjerCrypto {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String sign(TxData txData) {
+        return UUID.randomUUID().toString().substring(0, 6);
     }
 }
