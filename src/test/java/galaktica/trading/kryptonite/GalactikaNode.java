@@ -85,6 +85,10 @@ public class GalactikaNode implements LedjerNode {
         return new TxSignature(txData.txReference, UUID.randomUUID().toString().substring(0, 6));
     }
 
+    /**
+     * This needs to be an atomic transaction to the event store so that we cant loose the signature or tx data
+     * otherwise we'd need some way to recover.
+     */
     private void store_registeredTx(TxData txData, TxSignature coordinatorSignature) {
         this.txEventStore.addAll(Arrays.<TxEvent>asList(
                 new TxEvent("RegisteredTx", txData.txReference, txData),

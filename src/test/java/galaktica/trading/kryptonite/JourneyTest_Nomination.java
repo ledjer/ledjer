@@ -55,7 +55,7 @@ public class JourneyTest_Nomination {
 
         logTx(taurusNode, tx_hydra);
 
-//        NominationContract nominationContract = taurusNominations.at(tx_taurus.txData.contractAddress);
+        NominationContract nominationContract = taurusNominations.at(tx_taurus.txData.contractAddress);
 //
 //        TxReference tx_taurus_accept = nominationContract.accept();
 //
