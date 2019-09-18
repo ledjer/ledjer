@@ -26,23 +26,24 @@ public class NetworkComms {
 
     public void sendSignature(final LedjerNode source, final TxSignature signature, List<LedjerNode> participants) {
         for (final LedjerNode destination : participants) {
-            Thread t = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Thread.sleep(50);
+            if (!source.getName().equals(destination.getName())) {
+                Thread t = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            Thread.sleep(50);
 
-                        log.debug("[{}] Sending Signature [{}] to [{}]", source.getName(), signature.signature, destination.getName());
+                            log.debug("[{}] Sending Signature [{}] to [{}]", source.getName(), signature.signature, destination.getName());
 
-                        destination.receiveSignature(signature);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                            destination.receiveSignature(signature);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
-                }
-            });
-            t.start();
+                });
+                t.start();
+            }
         }
     }
-
 
 
     public void sendTxToParticipants(final LedjerNode coordinator, final TxData txData, final TxSignature coordinatorSignature) {

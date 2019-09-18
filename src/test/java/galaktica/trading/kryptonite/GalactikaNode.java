@@ -62,8 +62,8 @@ public class GalactikaNode implements LedjerNode {
     public void receiveTxData(TxData txData, TxSignature coordinatorSignature) {
         store_registeredTx(txData, coordinatorSignature);
 
-
         TxSignature txSignature = signTxData(txData);
+        store_signature(txSignature);
         networkComms.sendSignature(this, txSignature, txData.participants);
     }
 
