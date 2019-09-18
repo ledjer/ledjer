@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static ch.qos.logback.classic.Level.DEBUG;
+import static ch.qos.logback.classic.Level.TRACE;
 import static galaktica.trading.kryptonite.Freighters.CARGO_CULT;
 import static galaktica.trading.kryptonite.Traders.HYDRA;
 import static galaktica.trading.kryptonite.Traders.TAURUS;
@@ -29,7 +30,7 @@ public class JourneyTest_Nomination {
 
     @BeforeClass
     public static void initialiseLogging() {
-        initialiseConsoleLogging(DEBUG, SIMPLE_CONSOLE_FORMAT);
+        initialiseConsoleLogging(TRACE, SIMPLE_CONSOLE_FORMAT);
     }
 
     @Test
