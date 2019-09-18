@@ -15,11 +15,12 @@ public class NominationContract  implements Contract<NominationState> {
     }
 
 
-    public TxResponse accept() {
+    public TxReference accept() {
         NominationState s = currentState();
         NominationState s1 = new NominationState(id, s.nominator, s.receiver, s.freighter, "Accepted");
         states.add(s1);
-        return networkComms.sendStateTo(s.receiver.node, s1);
+//        return networkComms.sendStateTo(s.receiver.node, s1);
+        return null;
     }
 
     public TxResponse propose(Trader nominator, Trader receiver, Freighter freighter, String state) {

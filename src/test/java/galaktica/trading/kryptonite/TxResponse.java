@@ -1,6 +1,6 @@
 package galaktica.trading.kryptonite;
 
-public class TxResponse {
+public class TxResponse  {
     public final String status;
     public final String contractAddress;
 
