@@ -38,7 +38,7 @@ public class JourneyTest_Nomination {
         log.info("Nominating a freighter");
         TxReference tx1_reference = hydraNominations.propose(TAURUS, CARGO_CULT);
 
-        assertThat(hydraNode.getTx(tx1_reference).status, is("RequestedSignatures"));
+        assertThat(hydraNode.getTx(tx1_reference).status, is("TransactionSent"));
 
         Tx tx_hydra = waitForTxToComplete(hydraNode, tx1_reference, 1000);
 

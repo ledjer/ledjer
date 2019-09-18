@@ -43,49 +43,24 @@ public class NetworkComms {
         }
     }
 
-    public void requestSignatures(LedjerNode coordinator, TxData txData) {
-        for (LedjerNode node : txData.participants) {
-            requestSignature(coordinator, node, txData);
-        }
-    }
-
-
-    private void requestSignature(final LedjerNode coordinator, final LedjerNode destination, final TxData txData) {
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Thread.sleep(50);
-
-                    log.debug("[{}] Requesting signature from [{}]", coordinator.getName() , destination.getName());
-
-                    destination.requestSignature(txData);
-                } catch( InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        t.start();
-    }
-
 
     public void sendTxToParticipants(final LedjerNode coordinator, final TxData txData) {
         for (final LedjerNode destination : txData.participants) {
-            if (!coordinator.getName().equals(destination.getName())) {
-                Thread t = new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            Thread.sleep(50);
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        Thread.sleep(50);
 
-                            log.debug("[{}] Sending Tx [{}] to [{}]", coordinator.getName(), txData, destination.getName());
+                        log.debug("[{}] Sending Tx [{}] to [{}]", coordinator.getName(), txData, destination.getName());
 
-                            destination.receiveTxData(txData);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                        destination.receiveTxData(txData);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
-                });
-                t.start();
-            }
+                }
+            });
+            t.start();
+
         }
     }
 }

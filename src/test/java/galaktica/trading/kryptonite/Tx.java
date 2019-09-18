@@ -29,7 +29,7 @@ public class Tx {
         List<TxSignature> txSignatures = new ArrayList<TxSignature>();
 
         for (TxEvent txEvent : txEventStore) { // @todo filter list by txReference
-            log.debug("Reading event: " + txEvent.type);
+            log.trace("Reading event: " + txEvent.type);
 
             if (txEvent.txReference.equals(txReference)) {
                 status = txEvent.type;
