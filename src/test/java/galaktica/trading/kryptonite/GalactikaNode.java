@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static galaktica.trading.kryptonite.LedjerCrypto.sha256HashOf;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 
@@ -49,7 +50,7 @@ public class GalactikaNode implements LedjerNode {
     }
 
     public TxReference submitTx(TxData txData) {
-        TxReference txReference = new TxReference(randomUUID().toString());
+        TxReference txReference = new TxReference(sha256HashOf(txData));
         log.debug("[{}] Transaction [{}] Submitted", name, txReference);
 
         TxSignature txSignature = signTxData(txReference, txData);

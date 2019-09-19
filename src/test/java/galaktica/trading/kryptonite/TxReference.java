@@ -1,17 +1,13 @@
 package galaktica.trading.kryptonite;
 
 public class TxReference {
-    private final String uuid;
+    private final String hash;
 
     public TxReference(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public boolean isComplete() {
-        return false;
+        this.hash = uuid;
     }
 
     public String toString() {
-        return uuid;
+        return hash;
     }
 }
