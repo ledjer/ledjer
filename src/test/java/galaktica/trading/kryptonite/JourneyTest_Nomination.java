@@ -27,7 +27,7 @@ public class JourneyTest_Nomination {
 
     @BeforeClass
     public static void initialiseLogging() {
-        initialiseConsoleLogging(TRACE, SIMPLE_CONSOLE_FORMAT);
+        initialiseConsoleLogging(DEBUG, SIMPLE_CONSOLE_FORMAT);
     }
 
     @Test

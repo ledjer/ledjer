@@ -87,12 +87,13 @@ public class GalactikaNode implements LedjerNode {
         networkComms.sendSignature(this, txSignature, txData.participants);
     }
 
+
     public void receiveSignature(TxSignature signature) {
         log.debug("[{}] Received signature [{}]", name, signature.signature);
 
         store_signature(signature);
 
-        if (TxWitnessSignature.class.isAssignableFrom(signature.getClass())) {
+        if (TxWitnessStatement.class.isAssignableFrom(signature.getClass())) {
             return;
         }
 
@@ -102,6 +103,15 @@ public class GalactikaNode implements LedjerNode {
             witnessTx(tx);
         }
     }
+
+    @Override
+    public void receiveWitnessStatement(TxWitnessStatement txWitnessStatement) {
+        log.debug("[{}] Received witness statement from [{}]", name, txWitnessStatement.witnessNode);
+        store_witnessStatement(txWitnessStatement);
+
+    }
+
+
 
     private void witnessTx(Tx tx) {
         networkComms.sendTxToWitness(this, tx);
@@ -129,9 +139,14 @@ public class GalactikaNode implements LedjerNode {
         process_tx(txData);
     }
 
-    private void store_signature(TxSignature signature) {
-        this.txEventStore.add(new TxEvent("SignatureAdded", signature.txReference, signature));
+    private void store_signature(TxSignature txSignature) {
+        this.txEventStore.add(new TxEvent("SignatureAdded", txSignature.txReference, txSignature));
     }
+
+    private void store_witnessStatement(TxWitnessStatement txWitnessStatement) {
+        this.txEventStore.add(new TxEvent("WitnessStatementAdded", txWitnessStatement.txSignature.txReference, txWitnessStatement));
+    }
+
 
 
     private void store_txSent(TxReference txReference) {

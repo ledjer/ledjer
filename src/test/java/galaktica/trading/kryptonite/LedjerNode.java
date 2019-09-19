@@ -8,4 +8,6 @@ public interface  LedjerNode extends AddressableNode {
     void receiveSignature(TxSignature signature);
 
     void receiveTxData(TxData txData, TxSignature coordinatorSignature);
+
+    void receiveWitnessStatement(TxWitnessStatement txWitnessStatement);
 }

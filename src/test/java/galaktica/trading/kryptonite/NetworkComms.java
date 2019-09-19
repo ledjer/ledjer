@@ -45,6 +45,30 @@ public class NetworkComms {
         }
     }
 
+    public void sendWitnessStatement(final WitnessNode witnessNode, final TxWitnessStatement txWitnessStatement, List<LedjerNode> participants) {
+        for (final LedjerNode destination : participants) {
+
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        Thread.sleep(50);
+
+                        log.debug("[{}] Sending Witness Statment [Signature: {}, Evidence: {}] to [{}]",
+                                witnessNode.getName(),
+                                txWitnessStatement.txSignature.signature,
+                                txWitnessStatement.witnessEvidence,
+                                destination.getName());
+
+                        destination.receiveWitnessStatement(txWitnessStatement);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            t.start();
+        }
+    }
+
 
     public void sendTxToParticipants(final LedjerNode coordinator, final TxData txData, final TxSignature coordinatorSignature) {
         for (final LedjerNode destination : txData.participants) {
@@ -83,4 +107,6 @@ public class NetworkComms {
         });
         t.start();
     }
+
+
 }
