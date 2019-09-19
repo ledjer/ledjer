@@ -3,12 +3,12 @@ package galaktica.trading.kryptonite;
 import java.util.List;
 import java.util.UUID;
 
-public class HashWitnessNode implements WitnessNode {
+public class EthereumWitnessNode implements WitnessNode {
 
     private final String name;
     private final NetworkComms networkComms;
 
-    public HashWitnessNode(String name, NetworkComms networkComms) {
+    public EthereumWitnessNode(String name, NetworkComms networkComms) {
         this.name = name;
         this.networkComms = networkComms;
     }
