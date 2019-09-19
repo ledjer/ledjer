@@ -86,6 +86,8 @@ public class Tx {
     public TxExternal toExternalForm() {
         return new TxExternal(txReference.toString(),
                 extractParticipants(txData.participants),
+                this.txData.nonce,
+                this.txData.contractAddress,
                 this.txData.contractClass.getSimpleName(),
                 this.txData.method,
                 this.txData.inputParameters,
@@ -99,8 +101,12 @@ public class Tx {
         return new TxExternal.TxWitnessStatementExternal(txWitnessStatement);
     }
 
-    private static List<String> extractParticipants(List<LedjerNode> txData) {
-        return null;
+    private static List<String> extractParticipants(List<LedjerNode> participants) {
+        List<String> participantNames = new ArrayList<>();
+        for (LedjerNode node : participants) {
+            participantNames.add(node.getName());
+        }
+        return participantNames;
     }
 
     private static List<String> signaturesFrom(List<TxSignature> txSignatures) {

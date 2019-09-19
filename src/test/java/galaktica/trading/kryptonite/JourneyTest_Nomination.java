@@ -33,7 +33,7 @@ public class JourneyTest_Nomination {
     @Test
     public void can_complete_a_simple_transaction() {
 
-        log.info("Hydra Nominates a freighter [cargo-cult] to Taurus");
+        log.info("[Hydra] Nominates a freighter [cargo-cult] to [Taurus]");
         TxReference tx1_reference = hydraNominations.propose(TAURUS, CARGO_CULT);
         assertThat(hydraNode.getTx(tx1_reference).status, is("TransactionSent"));
 

@@ -71,8 +71,10 @@ public class KryptoniteNominations {
 
     public TxReference propose(Trader receiver, Freighter freighter) {
         log.debug("[{}] Proposing Nomination", node.name);
+        long nonce = node.nextNonce();
         TxData txData = new TxData(
-                LedjerCrypto.sha256HashOf(node.nextNonce(), NominationContract.class.getName()),
+                nonce,
+                LedjerCrypto.sha256HashOf(nonce, NominationContract.class.getName()),
                 NominationContract.class,
                 Arrays.<LedjerNode>asList(node, receiver.node),
                 "init",
@@ -87,6 +89,7 @@ public class KryptoniteNominations {
         NominationContract contract = at(contractAddress);
         log.debug("[{}] Accepting Nomination [{}]", node.name, contractAddress);
         TxData txData = new TxData(
+                node.nextNonce(),
                 contractAddress,
                 NominationContract.class,
                 contract.participants, // need to validate this

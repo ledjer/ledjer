@@ -8,7 +8,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static galaktica.trading.kryptonite.LedjerCrypto.sha256HashOf;
 import static java.lang.String.format;
-import static java.util.UUID.randomUUID;
 
 public class GalactikaNode implements LedjerNode {
 

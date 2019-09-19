@@ -70,7 +70,8 @@ public class NetworkComms {
     }
 
 
-    public void sendTxToParticipants(final LedjerNode coordinator, final TxReference txReference, final TxData txData, final TxSignature coordinatorSignature) {
+    public void sendTxToParticipants(final LedjerNode coordinator, final TxReference txReference,
+                                     final TxData txData, final TxSignature coordinatorSignature) {
         for (final LedjerNode destination : txData.participants) {
             if (!coordinator.getName().equals(destination.getName())) {
                 Thread t = new Thread(new Runnable() {
