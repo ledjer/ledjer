@@ -49,11 +49,11 @@ public class JourneyTest_Nomination {
     @Test
     public void can_nominate_a_freighter_for_kryptonite() throws JsonProcessingException {
 
-        log.info("Hydra Nominates a freighter [cargo-cult] to Taurus");
+        log.info("[Hydra] Nominates a freighter [cargo-cult] to [Taurus]");
         TxReference tx1_reference = hydraNominations.propose(TAURUS, CARGO_CULT);
         hydraNominations.waitForTx(tx1_reference, 1000);
 
-        log.info("Taurus accepts the nomination");
+        log.info("[Taurus] accepts the nomination");
         Tx tx_taurus = taurusNominations.waitForTx(tx1_reference, 1000);
         TxReference tx2_reference = taurusNominations.accept(tx_taurus.txData.contractAddress);
 
