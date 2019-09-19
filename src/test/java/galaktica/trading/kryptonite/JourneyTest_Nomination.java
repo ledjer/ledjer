@@ -39,7 +39,7 @@ public class JourneyTest_Nomination {
 
         Tx tx_hydra = hydraNominations.waitForTx(tx1_reference, 1000);
         assertThat(tx_hydra.status, is("Completed"));
-        assertThat(tx_hydra.txData.txReference, is(tx1_reference));
+        assertThat(tx_hydra.txReference, is(tx1_reference));
 
         Tx tx_taurus = taurusNominations.waitForTx(tx1_reference, 1000);
         assertThat(tx_taurus.status, is("Completed"));

@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.String.format;
+import static java.util.UUID.randomUUID;
 
 public class GalactikaNode implements LedjerNode {
 
@@ -47,20 +48,22 @@ public class GalactikaNode implements LedjerNode {
         return (T) contracts.get(contractIndex.size() - 1);
     }
 
-    public void submitTx(TxData txData) {
-        log.debug("[{}] Transaction [{}] Submitted", name, txData.txReference);
+    public TxReference submitTx(TxData txData) {
+        TxReference txReference = new TxReference(randomUUID().toString());
+        log.debug("[{}] Transaction [{}] Submitted", name, txReference);
 
-        TxSignature txSignature = signTxData(txData);
+        TxSignature txSignature = signTxData(txReference, txData);
 
-        store_registeredTx(txData, txSignature);
+        store_registeredTx(txReference, txData, txSignature);
 
 
-        log.debug("[{}] Sending signed txData [{}] to participants (Signature [{}])", name, txData.txReference, txSignature.signature);
+        log.debug("[{}] Sending signed txData [{}] to participants (Signature [{}])", name, txReference, txSignature.signature);
 
-        networkComms.sendTxToParticipants(this, txData, txSignature);
+        networkComms.sendTxToParticipants(this, txReference, txData, txSignature);
 
-        store_txSent(txData.txReference);
+        store_txSent(txReference);
 
+        return txReference;
 
     }
 
@@ -79,10 +82,10 @@ public class GalactikaNode implements LedjerNode {
     }
 
     @Override
-    public void receiveTxData(TxData txData, TxSignature coordinatorSignature) {
-        store_registeredTx(txData, coordinatorSignature);
+    public void receiveTxData(TxReference txReference, TxData txData, TxSignature coordinatorSignature) {
+        store_registeredTx(txReference, txData, coordinatorSignature);
 
-        TxSignature txSignature = signTxData(txData);
+        TxSignature txSignature = signTxData(txReference, txData);
         store_signature(txSignature);
         networkComms.sendSignature(this, txSignature, txData.participants);
     }
@@ -124,17 +127,17 @@ public class GalactikaNode implements LedjerNode {
     }
 
 
-    private TxSignature signTxData(TxData txData) {
-        return new TxSignature(txData.txReference, LedjerCrypto.sign(txData));
+    private TxSignature signTxData(TxReference txReference, TxData txData) {
+        return new TxSignature(txReference, LedjerCrypto.sign(txData));
     }
 
     /**
      * This needs to be an atomic transaction to the event store so that we cant loose the signature or tx data
      * otherwise we'd need some way to recover.
      */
-    private void store_registeredTx(TxData txData, TxSignature coordinatorSignature) {
+    private void store_registeredTx(TxReference txReference, TxData txData, TxSignature coordinatorSignature) {
         this.txEventStore.addAll(Arrays.<TxEvent>asList(
-                new TxEvent("RegisteredTx", txData.txReference, txData),
+                new TxEvent("RegisteredTx", txReference, txData),
                 new TxEvent("SignatureAdded", coordinatorSignature.txReference, coordinatorSignature)));
         process_tx(txData);
     }

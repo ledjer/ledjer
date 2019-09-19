@@ -70,7 +70,7 @@ public class NetworkComms {
     }
 
 
-    public void sendTxToParticipants(final LedjerNode coordinator, final TxData txData, final TxSignature coordinatorSignature) {
+    public void sendTxToParticipants(final LedjerNode coordinator, final TxReference txReference, final TxData txData, final TxSignature coordinatorSignature) {
         for (final LedjerNode destination : txData.participants) {
             if (!coordinator.getName().equals(destination.getName())) {
                 Thread t = new Thread(new Runnable() {
@@ -78,9 +78,9 @@ public class NetworkComms {
                         try {
                             Thread.sleep(50);
 
-                            log.debug("[{}] Sending Tx [{}] to [{}]", coordinator.getName(), txData.txReference, destination.getName());
+                            log.debug("[{}] Sending Tx [{}] to [{}]", coordinator.getName(), txReference, destination.getName());
 
-                            destination.receiveTxData(txData, coordinatorSignature);
+                            destination.receiveTxData(txReference, txData, coordinatorSignature);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -97,9 +97,9 @@ public class NetworkComms {
                 try {
                     Thread.sleep(50);
 
-                    log.debug("[{}] Sending Tx [{}] to witness [{}]", coordinator.getName(), tx.txData.txReference, tx.txData.witness.getName());
+                    log.debug("[{}] Sending Tx [{}] to witness [{}]", coordinator.getName(), tx.txReference, tx.txData.witness.getName());
 
-                    tx.txData.witness.witnessTx(tx.txData, tx.txSignatures);
+                    tx.txData.witness.witnessTx(tx.txReference, tx.txData, tx.txSignatures);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

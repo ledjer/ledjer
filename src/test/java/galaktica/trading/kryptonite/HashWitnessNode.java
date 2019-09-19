@@ -19,8 +19,8 @@ public class HashWitnessNode implements WitnessNode {
     }
 
     @Override
-    public void witnessTx(TxData txData, List<TxSignature> txSignatures) {
-        TxSignature txSignature = new TxSignature(txData.txReference, LedjerCrypto.sign(txData));
+    public void witnessTx(TxReference txReference, TxData txData, List<TxSignature> txSignatures) {
+        TxSignature txSignature = new TxSignature(txReference, LedjerCrypto.sign(txData));
         String witnessEvidence = LedjerCrypto.sha256HashOf(UUID.randomUUID().toString());
         networkComms.sendWitnessStatement(this, new TxWitnessStatement(this, txSignature, witnessEvidence), txData.participants);
     }
